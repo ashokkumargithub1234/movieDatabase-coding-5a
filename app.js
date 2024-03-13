@@ -45,6 +45,10 @@ const convertDirectorDbObjectToResponseObject = (dbObject) => {
 };
 
 app.get("/", async (request, response) => {
+  response.send("Data Loaded");
+});
+
+app.get("/movies/", async (request, response) => {
   const getMoviesQuery = `
     SELECT
       movie_name
