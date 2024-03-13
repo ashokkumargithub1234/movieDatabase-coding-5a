@@ -44,25 +44,18 @@ const convertDirectorDbObjectToResponseObject = (dbObject) => {
   };
 };
 
-//Get Multiple API
-app.get("/movies/", async (request, response) => {
+app.get("/", async (request, response) => {
   const getMoviesQuery = `
     SELECT
-      *
+      movie_name
     FROM
       movie;`;
   const moviesArray = await database.all(getMoviesQuery);
-  response.send(
-    moviesArray.map((eachMovie) =>
-      convertMovieDbObjectToResponseObject(eachMovie)
-    )
-  );
   response.send(
     moviesArray.map((eachMovie) => ({ movieName: eachMovie.movie_name }))
   );
 });
 
-//Get One API
 app.get("/movies/:movieId/", async (request, response) => {
   const { movieId } = request.params;
   const getMovieQuery = `
@@ -76,18 +69,17 @@ app.get("/movies/:movieId/", async (request, response) => {
   response.send(convertMovieDbObjectToResponseObject(movie));
 });
 
-// Add Book API
 app.post("/movies/", async (request, response) => {
   const { directorId, movieName, leadActor } = request.body;
-  const addMovieQuery = `
-    INSERT INTO
-      movie (director_id,movie_name,lead_actor)
-    VALUES ('${directorId}','${movieName}','${leadActor}');`;
-  const movie = await database.run(addMovieQuery);
+  const postMovieQuery = `
+  INSERT INTO
+    movie ( director_id, movie_name, lead_actor)
+  VALUES
+    (${directorId}, '${movieName}', '${leadActor}');`;
+  await database.run(postMovieQuery);
   response.send("Movie Successfully Added");
 });
 
-//update Book API
 app.put("/movies/:movieId/", async (request, response) => {
   const { directorId, movieName, leadActor } = request.body;
   const { movieId } = request.params;
@@ -108,10 +100,10 @@ app.put("/movies/:movieId/", async (request, response) => {
 app.delete("/movies/:movieId/", async (request, response) => {
   const { movieId } = request.params;
   const deleteMovieQuery = `
-    DELETE FROM 
-        movie
-    WHERE 
-        movie_id = ${movieId};`;
+  DELETE FROM
+    movie
+  WHERE
+    movie_id = ${movieId};`;
   await database.run(deleteMovieQuery);
   response.send("Movie Removed");
 });
@@ -144,5 +136,4 @@ app.get("/directors/:directorId/movies/", async (request, response) => {
     moviesArray.map((eachMovie) => ({ movieName: eachMovie.movie_name }))
   );
 });
-
 module.exports = app;
